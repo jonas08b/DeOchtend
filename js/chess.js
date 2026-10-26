@@ -7,6 +7,12 @@
 // Puzzle shape: { game: { pgn, id, ... }, puzzle: { id, rating, solution: [uci...], initialPly, themes } }
 // Convention: position is built by replaying `pgn` to `initialPly`; solution[0] is the opponent's
 // setup move (auto-played), and the human solves solution[1], solution[3], ... in turn.
+//
+// chess.js 1.x (beta) no longer ships a browser-global/UMD build (it's ESM/CJS only), so it can't be
+// loaded with a plain <script src="..."> tag anymore — that used to define window.Chess, but on 1.x
+// it silently does nothing (window.Chess stays undefined). We import it directly as an ES module here
+// instead, since this file is itself loaded as a module.
+import { Chess } from 'https://cdn.jsdelivr.net/npm/chess.js@1.0.0-beta.8/+esm';
 
 const PUZZLE_CACHE_KEY = 'deochtend:cache:chessPuzzle';
 const FETCHED_AT_KEY = 'deochtend:cache:chessPuzzleAt';
@@ -71,7 +77,7 @@ async function fetchPuzzle({ forceNext = false } = {}) {
 function setupFromPuzzleData(data) {
   const pgn = data.game.pgn;
   const initialPly = data.puzzle.initialPly;
-  const replay = new window.Chess();
+  const replay = new Chess();
   // chess.js v1 beta: load PGN move list (pgn here is space-separated SAN moves per Lichess format)
   const sanMoves = pgn.trim().split(/\s+/).filter(Boolean);
   for (let i = 0; i < initialPly && i < sanMoves.length; i++) {
@@ -263,7 +269,7 @@ export async function initChess({ onDone }) {
     }
   }
 
-  if (typeof window.Chess !== 'function') {
+  if (typeof Chess !== 'function') {
     body.innerHTML = '<p class="state state--error">Schaakbibliotheek kon niet geladen worden.</p>';
     return;
   }
