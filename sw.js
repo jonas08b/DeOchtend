@@ -1,7 +1,7 @@
 // sw.js — caches the static app shell only. News/podcast/puzzle API calls are
 // deliberately left to the network (network-first with no SW caching) because
 // freshness there matters more than offline availability (see spec §2 and §7).
-const CACHE_VERSION = 'deochtend-shell-v1';
+const CACHE_VERSION = 'deochtend-shell-v2';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -9,6 +9,7 @@ const APP_SHELL = [
   '/js/app.js',
   '/js/news.js',
   '/js/chess.js',
+  '/js/vendor/chess.esm.js',
   '/js/podcast.js',
   '/js/mentalmath.js',
   '/js/braintest.js',
