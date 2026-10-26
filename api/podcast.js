@@ -3,13 +3,15 @@
 // enclosure/duration/image data that a generic RSS→JSON proxy often drops) and returns
 // the newest episode per source.
 //
-// NOTE per spec §3.3/§5: "Verifieer de exacte feed-URL's en de bedoelde dagelijkse
-// podcast voordat de module wordt afgerond" — the spec itself flags these URLs as
-// possibly wrong ("Kan fout zijn"). Confirm both URLs resolve to the intended daily
-// news podcast (De Tijd: "De 7"; De Standaard: "DS Vandaag") before relying on this
-// in production. A third feed ("De 7 extra") is defined but disabled by default —
-// enable it only once you've confirmed the module should show more than one De Tijd
-// episode, since the spec names exactly one source per publisher.
+// NOTE per spec §3.3/§5: eerdere versie gebruikte onvolledige playlist-URL's (ontbrekend
+// pad-segment), waardoor Omny steevast een 502 teruggaf. Geverifieerd op 26 okt 2026 via
+// de officiële RSS-feed-links op podengine.ai (die de feeds zelf actief pollen) — beide
+// URL's hebben het volledige 3-segment playlist-pad: /playlist/{networkId}/{programId}/
+// {playlistId}/podcast.rss. Confirm beide nog steeds naar de bedoelde dagelijkse podcast
+// wijzen (De Tijd: "De 7"; De Standaard: "DS Vandaag") als dit in productie draait.
+// A third feed ("De 7 extra") is defined but disabled by default — enable it only once
+// you've confirmed the module should show more than one De Tijd episode, since the spec
+// names exactly one source per publisher.
 
 const { XMLParser } = require('fast-xml-parser');
 const { fetchWithTimeout, isSafeHttpUrl, stripHtml } = require('./_lib/http');
@@ -19,13 +21,13 @@ const CACHE_TTL_MS = 15 * 60 * 1000;
 const FEEDS = [
   {
     sourceLabel: 'De Tijd — De 7',
-    url: 'https://www.omnycontent.com/d/playlist/5978613f-cd11-4352-8f26-adb900fa9a58/3c1222e5-288f-4047-a2f0-ae1b00d0d95a/podcast.rss'
+    url: 'https://www.omnycontent.com/d/playlist/5978613f-cd11-4352-8f26-adb900fa9a58/3c1222e5-288f-4047-a2f0-ae1b00a91688/a0389eb5-55da-493d-b7bb-ae1b00d0d95a/podcast.rss'
   },
   // Disabled by default — see note above. Uncomment if "De 7 extra" should also appear.
   // { sourceLabel: 'De Tijd — De 7 extra', url: 'https://omny.fm/shows/de-7/playlists/de-7-extra.rss' },
   {
     sourceLabel: 'De Standaard — DS Vandaag',
-    url: 'https://www.omnycontent.com/d/playlist/fdd7ab40-270d-4a1e-a257-acd200da1324/71125754-bd8a-43e1-9a89-ad86013d0307/podcast.rss'
+    url: 'https://www.omnycontent.com/d/playlist/fdd7ab40-270d-4a1e-a257-acd200da1324/71125754-bd8a-43e1-9a89-ad86013d02f9/cb1d5e53-dc3a-4853-84f0-ad86013d0307/podcast.rss'
   }
 ];
 
