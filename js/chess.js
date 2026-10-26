@@ -12,7 +12,14 @@
 // loaded with a plain <script src="..."> tag anymore — that used to define window.Chess, but on 1.x
 // it silently does nothing (window.Chess stays undefined). We import it directly as an ES module here
 // instead, since this file is itself loaded as a module.
-import { Chess } from 'https://cdn.jsdelivr.net/npm/chess.js@1.0.0-beta.8/+esm';
+//
+// This used to be imported live from a CDN (jsdelivr's +esm endpoint). That made the whole app
+// fragile: any ad blocker, privacy extension, corporate/school network filter, or CDN hiccup on the
+// user's end would make this import fail (or resolve to nothing), leaving `Chess` undefined and
+// showing "Schaakbibliotheek kon niet geladen worden" — even though nothing was actually wrong with
+// the app itself. It's now vendored locally so the puzzle module always loads, regardless of network
+// policy, and also works offline once the service worker has cached the app shell.
+import { Chess } from './vendor/chess.esm.js';
 
 const PUZZLE_CACHE_KEY = 'deochtend:cache:chessPuzzle';
 const FETCHED_AT_KEY = 'deochtend:cache:chessPuzzleAt';
