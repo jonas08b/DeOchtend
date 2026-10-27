@@ -1,6 +1,8 @@
-// GET /api/news
-// Haalt RSS-feeds op via rss2json, dedupeert, en geeft max 1 artikel
-// per categorie terug (politiek, economie, overige), gepubliceerd < 12u geleden.
+// GET /api/news[?debug=1]
+// Haalt RSS-feeds rechtstreeks op, dedupeert, en geeft max 1 artikel per categorie
+// (politiek, economie, overige) terug, gepubliceerd < 12u geleden.
+
+import { fetchFeed } from "./_rss.js";
 
 const FEEDS = [
   { url: "https://www.tijd.be/rss/nieuws.xml", source: "De Tijd", category: "overige" },
@@ -11,10 +13,11 @@ const FEEDS = [
   { url: "https://www.standaard.be/economie/rss/", source: "De Standaard", category: "economie" },
   { url: "https://www.standaard.be/economie/beurs/rss/", source: "De Standaard", category: "economie" },
   { url: "https://www.standaard.be/opinies/rss/", source: "De Standaard", category: "overige" },
-  { url: "https://www.hln.be/home/rss.xml", source: "HLN", category: "overige" }
+  { url: "https://www.hln.be/home/rss.xml", source: "HLN", category: "overige" },
+  // Extra, stabiele bronnen zodat er altijd iets te tonen is
+  { url: "https://www.vrt.be/vrtnws/nl.rss.articles.xml", source: "VRT NWS", category: "overige" }
 ];
 
-const PROXY = "https://api.rss2json.com/v1/api.json?rss_url=";
 const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;
 
 function normalizeTitle(title = "") {
@@ -26,41 +29,41 @@ function normalizeTitle(title = "") {
     .trim();
 }
 
-async function fetchFeed(feed) {
+async function loadFeed(feed, diag) {
   try {
-    const res = await fetch(PROXY + encodeURIComponent(feed.url), {
-      signal: AbortSignal.timeout(7000)
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (data.status !== "ok" || !Array.isArray(data.items)) return [];
-    return data.items.map((item) => ({
+    const { items, via } = await fetchFeed(feed.url);
+    diag.push({ url: feed.url, ok: true, via, count: items.length });
+    return items.map((item) => ({
       title: item.title,
       url: item.link,
       source: feed.source,
       category: feed.category,
       pubDate: item.pubDate,
       image: item.thumbnail || item.enclosure?.link || null,
-      description: (item.description || "").replace(/<[^>]*>/g, "").slice(0, 180)
+      description: (item.description || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim().slice(0, 180)
     }));
   } catch (err) {
+    diag.push({ url: feed.url, ok: false, error: String(err.message || err) });
     return [];
   }
 }
 
 export default async function handler(req, res) {
-  res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=1800");
+  const debug = req.query?.debug === "1";
+  res.setHeader("Cache-Control", debug ? "no-store" : "s-maxage=600, stale-while-revalidate=1800");
   try {
-    const results = await Promise.all(FEEDS.map(fetchFeed));
-    let items = results.flat();
+    const diag = [];
+    const results = await Promise.all(FEEDS.map((f) => loadFeed(f, diag)));
+    let items = results.flat().filter((it) => it.title && it.url);
+    const total = items.length;
 
     const now = Date.now();
     items = items.filter((it) => {
       const t = new Date(it.pubDate).getTime();
-      return !isNaN(t) && now - t <= TWELVE_HOURS_MS;
+      // kleine tolerantie voor klokverschillen (feeds met datum net in de toekomst)
+      return !isNaN(t) && now - t <= TWELVE_HOURS_MS && t - now < 15 * 60 * 1000;
     });
 
-    // Dedupe op URL of bijna-identieke titel
     const seenUrls = new Set();
     const seenTitles = new Set();
     items = items.filter((it) => {
@@ -79,7 +82,9 @@ export default async function handler(req, res) {
       .map((cat) => items.find((it) => it.category === cat))
       .filter(Boolean);
 
-    res.status(200).json({ items: picked, generatedAt: new Date().toISOString() });
+    const body = { items: picked, generatedAt: new Date().toISOString() };
+    if (debug) Object.assign(body, { totalFetched: total, within12h: items.length, feeds: diag });
+    res.status(200).json(body);
   } catch (err) {
     res.status(500).json({ error: "Kon nieuws niet ophalen", items: [] });
   }
