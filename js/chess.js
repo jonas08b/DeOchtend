@@ -2,7 +2,7 @@ import { Chessground } from "/js/vendor/chessground.js";
 
 const FILES = "abcdefgh";
 
-let game, solution = [], solIndex = 0, cg;
+let game, solution = [], solIndex = 0, cg, playerColor, puzzleToken = 0;
 const boardEl = document.getElementById("chessboard");
 const statusEl = document.getElementById("chess-status");
 
@@ -31,6 +31,10 @@ function buildDests() {
 
 function boardConfig(lastMove) {
   const over = game.game_over ? game.game_over() : false;
+  // het bord mag alleen bediend worden als het echt de beurt van de speler
+  // is; tijdens de (korte) automatische tegenzet van de "tegenstander" staat
+  // het op slot, anders kan de speler per ongeluk die zet zelf spelen.
+  const playersTurn = !over && turnColor() === playerColor;
   return {
     fen: game.fen(),
     turnColor: turnColor(),
@@ -38,8 +42,8 @@ function boardConfig(lastMove) {
     lastMove,
     movable: {
       free: false,
-      color: over ? undefined : turnColor(),
-      dests: over ? new Map() : buildDests(),
+      color: playersTurn ? playerColor : undefined,
+      dests: playersTurn ? buildDests() : new Map(),
       events: { after: onUserMove },
     },
   };
@@ -50,6 +54,7 @@ function sync(lastMove) {
 }
 
 function onUserMove(orig, dest) {
+  const myToken = puzzleToken;
   const expected = solution[solIndex];
   const result = game.move({ from: orig, to: dest, promotion: "q" });
   if (!result) {
@@ -69,6 +74,7 @@ function onUserMove(orig, dest) {
     statusEl.textContent = "Juist! Zet " + (solIndex / 2 + 0.5) + " / " + Math.ceil(solution.length / 2);
     sync([result.from, result.to]);
     setTimeout(() => {
+      if (myToken !== puzzleToken) return; // ondertussen een andere puzzel geladen
       const next = solution[solIndex];
       if (next) {
         const auto = game.move({ from: next.slice(0, 2), to: next.slice(2, 4), promotion: next[4] || "q" });
@@ -86,6 +92,7 @@ function onUserMove(orig, dest) {
 
 async function loadPuzzle() {
   statusEl.textContent = "Puzzel laden…";
+  const myToken = ++puzzleToken; // ongeldig maken van nog lopende timers van een vorige puzzel
   try {
     const res = await fetch("/api/puzzle");
     const data = await res.json();
@@ -98,6 +105,7 @@ async function loadPuzzle() {
 
     // de kant die net gezet heeft is de tegenstander; de speler speelt de andere kleur
     const orientation = game.turn() === "w" ? "black" : "white";
+    playerColor = orientation;
     solution = puzzle.puzzle.solution;
     solIndex = 0;
 
