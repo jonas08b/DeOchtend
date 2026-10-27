@@ -1,7 +1,8 @@
-const CACHE = "deochtend-v2";
+const CACHE = "deochtend-v3";
 const SHELL = [
   "/", "/index.html", "/manifest.json",
   "/css/styles.css",
+  "/js/vendor/chess.js",
   "/js/app.js", "/js/chess.js", "/js/mentalmath.js", "/js/braintest.js"
 ];
 
