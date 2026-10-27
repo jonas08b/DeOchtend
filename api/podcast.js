@@ -5,12 +5,15 @@ import { fetchFeed } from "./_rss.js";
 
 const SHOWS = [
   {
-    url: "https://www.omnycontent.com/d/playlist/5978613f-cd11-4352-8f26-adb900fa9a58/3c1222e5-288f-4047-a2f0-ae1b00d0d95a/podcast.rss",
+    // Let op: dit pad bevat 2 GUID's na de show-id (playlist-item + aflevering-episode).
+    // De oude URL miste het eerste GUID-segment, waardoor hij op een lege/onbestaande
+    // playlist wees en de feed altijd leeg terugkwam.
+    url: "https://www.omnycontent.com/d/playlist/5978613f-cd11-4352-8f26-adb900fa9a58/3c1222e5-288f-4047-a2f0-ae1b00a91688/a0389eb5-55da-493d-b7bb-ae1b00d0d95a/podcast.rss",
     name: "De 7",
     publisher: "De Tijd"
   },
   {
-    url: "https://www.omnycontent.com/d/playlist/fdd7ab40-270d-4a1e-a257-acd200da1324/71125754-bd8a-43e1-9a89-ad86013d0307/podcast.rss",
+    url: "https://www.omnycontent.com/d/playlist/fdd7ab40-270d-4a1e-a257-acd200da1324/71125754-bd8a-43e1-9a89-ad86013d02f9/cb1d5e53-dc3a-4853-84f0-ad86013d0307/podcast.rss",
     name: "DS Vandaag",
     publisher: "De Standaard"
   }
