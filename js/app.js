@@ -118,6 +118,44 @@ function initCollapse() {
   });
 }
 
+// ---------- Bottom tab bar (focusmodus per onderdeel) ----------
+function initTabbar() {
+  const bar = document.getElementById('tabbar');
+  const main = document.getElementById('main');
+  if (!bar || !main) return;
+  const buttons = Array.from(bar.querySelectorAll('.tabbar__btn'));
+
+  function expandModule(tab) {
+    const section = document.getElementById('module-' + tab);
+    if (!section || !section.classList.contains('is-collapsed')) return;
+    section.classList.remove('is-collapsed');
+    const collapseBtn = section.querySelector('.module__collapse');
+    if (collapseBtn) collapseBtn.setAttribute('aria-expanded', 'true');
+    store('collapsed:module-' + tab, false);
+  }
+
+  function applyFocus(tab, { scroll = true } = {}) {
+    if (tab) { main.dataset.focus = tab; } else { delete main.dataset.focus; }
+    buttons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tab === tab)));
+    store('focusTab', tab || undefined);
+    if (tab) {
+      expandModule(tab);
+      if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      const current = main.dataset.focus || '';
+      applyFocus(current === tab ? '' : tab);
+    });
+  });
+
+  const saved = load('focusTab', '');
+  applyFocus(saved && MODULES.includes(saved) ? saved : '', { scroll: false });
+}
+
 // ---------- Settings drawer ----------
 function initDrawer() {
   const drawer = document.getElementById('settingsDrawer');
@@ -169,6 +207,7 @@ function boot() {
   initTheme();
   initClock();
   initCollapse();
+  initTabbar();
   initDrawer();
   initOffline();
   initServiceWorker();
