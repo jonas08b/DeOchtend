@@ -1,7 +1,7 @@
-// GET /api/podcast
+// GET /api/podcast[?debug=1]
 // Geeft de nieuwste aflevering van "De 7" en "DS Vandaag" terug.
 
-const PROXY = "https://api.rss2json.com/v1/api.json?rss_url=";
+import { fetchFeed } from "./_rss.js";
 
 const SHOWS = [
   {
@@ -16,32 +16,33 @@ const SHOWS = [
   }
 ];
 
-async function fetchLatest(show) {
+async function fetchLatest(show, diag) {
   try {
-    const res = await fetch(PROXY + encodeURIComponent(show.url), {
-      signal: AbortSignal.timeout(7000)
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.status !== "ok" || !data.items?.length) return null;
-    const ep = data.items[0];
+    const { items, image, via } = await fetchFeed(show.url);
+    diag.push({ show: show.name, ok: true, via, count: items.length });
+    // nieuwste eerst, ook als de feed niet netjes gesorteerd is
+    const sorted = [...items].sort((a, b) => (new Date(b.pubDate) || 0) - (new Date(a.pubDate) || 0));
+    const ep = sorted[0];
     return {
       show: show.name,
       publisher: show.publisher,
       title: ep.title,
       pubDate: ep.pubDate,
-      cover: ep.thumbnail || data.feed?.image || null,
+      cover: ep.thumbnail || image || null,
       audioUrl: ep.enclosure?.link || null,
       duration: ep.enclosure?.duration || null,
       link: ep.link
     };
   } catch (err) {
+    diag.push({ show: show.name, ok: false, error: String(err.message || err) });
     return null;
   }
 }
 
 export default async function handler(req, res) {
-  res.setHeader("Cache-Control", "s-maxage=900, stale-while-revalidate=3600");
-  const episodes = (await Promise.all(SHOWS.map(fetchLatest))).filter(Boolean);
-  res.status(200).json({ episodes });
+  const debug = req.query?.debug === "1";
+  res.setHeader("Cache-Control", debug ? "no-store" : "s-maxage=900, stale-while-revalidate=3600");
+  const diag = [];
+  const episodes = (await Promise.all(SHOWS.map((s) => fetchLatest(s, diag)))).filter(Boolean);
+  res.status(200).json(debug ? { episodes, feeds: diag } : { episodes });
 }
