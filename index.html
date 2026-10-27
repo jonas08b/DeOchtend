@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DeOchtend</title>
+<meta name="theme-color" content="#0f1115">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<div id="topbar">
+  <button id="home-btn" aria-label="Naar hoofdpagina">⌂</button>
+  <h1 id="page-heading">DeOchtend</h1>
+  <div style="width:36px"></div>
+</div>
+
+<main>
+
+  <!-- HOME -->
+  <section class="view active" id="view-home">
+
+    <div class="widget" id="weather-widget" style="--accent:var(--accent-weather)">
+      <div class="widget-body-inner" style="padding-top:16px">
+        <div class="weather-card">
+          <div id="weather-icon" style="font-size:38px">🌤️</div>
+          <div style="flex:1">
+            <div class="loc">Mechelen</div>
+            <div class="desc" id="weather-desc">Weer laden…</div>
+          </div>
+          <div class="temp" id="weather-temp">–°</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget" id="news-widget" style="--accent:var(--accent-news)">
+      <div class="widget-head" data-toggle="news-widget">
+        <div class="icon">📰</div>
+        <div class="title"><strong>Nieuws</strong><span id="news-sub">Politiek · Economie · Overige</span></div>
+        <div class="chev">▾</div>
+      </div>
+      <div class="widget-body"><div class="widget-body-inner" id="news-list">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div></div>
+    </div>
+
+    <div class="widget" id="podcast-widget" style="--accent:var(--accent-podcast)">
+      <div class="widget-head" data-toggle="podcast-widget">
+        <div class="icon">🎙️</div>
+        <div class="title"><strong>Podcast</strong><span id="podcast-sub">De 7 · DS Vandaag</span></div>
+        <div class="chev">▾</div>
+      </div>
+      <div class="widget-body"><div class="widget-body-inner" id="podcast-list">
+        <div class="skeleton"></div><div class="skeleton"></div>
+      </div></div>
+    </div>
+
+    <a class="module-link" href="#schaak">
+      <div class="widget" style="--accent:var(--accent-chess)">
+        <div class="widget-head">
+          <div class="icon">♟️</div>
+          <div class="title"><strong>Schaakpuzzel</strong><span>Dagelijkse puzzel oplossen</span></div>
+          <div class="chev">→</div>
+        </div>
+      </div>
+    </a>
+
+    <a class="module-link" href="#rekenen">
+      <div class="widget" style="--accent:var(--accent-math)">
+        <div class="widget-head">
+          <div class="icon">🧮</div>
+          <div class="title"><strong>Hoofdrekenen</strong><span>Oefensessie starten</span></div>
+          <div class="chev">→</div>
+        </div>
+      </div>
+    </a>
+
+    <a class="module-link" href="#test">
+      <div class="widget" style="--accent:var(--accent-brain)">
+        <div class="widget-head">
+          <div class="icon">🧠</div>
+          <div class="title"><strong>Braintest</strong><span>Stroop · reactie · geheugen</span></div>
+          <div class="chev">→</div>
+        </div>
+      </div>
+    </a>
+
+  </section>
+
+  <!-- SCHAAK -->
+  <section class="view" id="view-schaak">
+    <h2 class="page-title">Schaakpuzzel</h2>
+    <div id="chessboard"></div>
+    <div id="chess-status">Puzzel laden…</div>
+    <div class="chess-controls">
+      <button class="btn" id="chess-hint">Hint</button>
+      <button class="btn primary" id="chess-new">Nieuwe puzzel</button>
+    </div>
+  </section>
+
+  <!-- REKENEN -->
+  <section class="view" id="view-rekenen">
+    <h2 class="page-title">Hoofdrekenen</h2>
+
+    <div id="math-setup" class="math-stage active">
+      <div class="diff-row">
+        <button class="chip active" data-level="makkelijk">Makkelijk</button>
+        <button class="chip" data-level="gemiddeld">Gemiddeld</button>
+        <button class="chip" data-level="moeilijk">Moeilijk</button>
+        <button class="chip" data-level="custom">Custom</button>
+      </div>
+
+      <div id="custom-panel" class="custom-form" style="display:none">
+        <div><label>Min getal</label><input type="number" id="c-min" value="2"></div>
+        <div><label>Max getal</label><input type="number" id="c-max" value="20"></div>
+        <div><label>Aantal vragen</label><input type="number" id="c-count" value="20"></div>
+        <div><label>Tijdslimiet (s)</label><input type="number" id="c-time" value="120"></div>
+        <div class="full">
+          <label style="display:flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="c-neg"> Negatieve getallen</label>
+        </div>
+        <div class="full">
+          <label style="margin-bottom:0">Bewerkingen</label>
+        </div>
+        <div class="full" style="display:flex;gap:14px;flex-wrap:wrap">
+          <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" class="c-op" value="+" checked> +</label>
+          <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" class="c-op" value="-" checked> −</label>
+          <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" class="c-op" value="*" checked> ×</label>
+          <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" class="c-op" value="/" checked> ÷</label>
+        </div>
+      </div>
+
+      <button class="btn primary" id="math-start" style="margin-top:16px;width:100%">Start sessie</button>
+    </div>
+
+    <div id="math-play" class="math-stage">
+      <div class="math-meta"><span id="math-progress">0/20</span><span id="math-timer">120s</span></div>
+      <div class="math-box">
+        <div id="math-problem">–</div>
+        <input id="math-answer" inputmode="numeric" placeholder="antwoord" autocomplete="off">
+      </div>
+    </div>
+
+    <div id="math-result" class="math-stage">
+      <div class="math-box">
+        <div class="score" id="math-score">0</div>
+        <div style="color:var(--text-muted);margin-top:6px">correct beantwoord</div>
+        <button class="btn primary" id="math-again" style="margin-top:18px">Opnieuw</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRAINTEST -->
+  <section class="view" id="view-test">
+    <h2 class="page-title">Braintest</h2>
+
+    <div id="brain-menu" class="brain-menu">
+      <div class="brain-card" data-test="stroop"><div class="icon">🎨</div><div><strong>Stroop-test</strong><div style="font-size:12.5px;color:var(--text-muted)">Benoem de kleur, niet het woord</div></div></div>
+      <div class="brain-card" data-test="reaction"><div class="icon">⚡</div><div><strong>Reactiesnelheid</strong><div style="font-size:12.5px;color:var(--text-muted)">Tik zo snel mogelijk bij groen</div></div></div>
+      <div class="brain-card" data-test="memory"><div class="icon">🔢</div><div><strong>Reeksgeheugen</strong><div style="font-size:12.5px;color:var(--text-muted)">Onthoud de volgorde</div></div></div>
+    </div>
+
+    <div id="brain-play" style="display:none">
+      <div id="brain-content"></div>
+      <div id="brain-result" style="display:none;text-align:center;padding:24px 0">
+        <div class="math-box">
+          <div class="score" id="brain-score">0</div>
+          <button class="btn primary" id="brain-again" style="margin-top:16px">Opnieuw</button>
+          <button class="btn" id="brain-back" style="margin-top:10px">Terug naar overzicht</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav id="tabbar">
+  <button class="tab-btn active" data-tab="home"><span class="ic">⌂</span>Home</button>
+  <button class="tab-btn" data-tab="schaak"><span class="ic">♟️</span>Schaak</button>
+  <button class="tab-btn" data-tab="rekenen"><span class="ic">🧮</span>Rekenen</button>
+  <button class="tab-btn" data-tab="test"><span class="ic">🧠</span>Test</button>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.13.4/chess.min.js"></script>
+<script src="/js/app.js" type="module"></script>
+</body>
+</html>
