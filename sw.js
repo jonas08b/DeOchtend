@@ -1,4 +1,4 @@
-const CACHE = "deochtend-v1";
+const CACHE = "deochtend-v2";
 const SHELL = [
   "/", "/index.html", "/manifest.json",
   "/css/styles.css",
