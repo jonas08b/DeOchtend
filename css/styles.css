@@ -28,6 +28,7 @@
   --radius-m: 10px;
   --radius-l: 16px;
   --radius-pill: 999px;
+  --tabbar-h: 60px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -154,7 +155,9 @@ button { font-family: inherit; }
 
 /* ---------- Dashboard grid ---------- */
 .dashboard {
-  max-width: 1100px; margin: 0 auto; padding: var(--space-4);
+  max-width: 1100px; margin: 0 auto;
+  padding: var(--space-4);
+  padding-bottom: calc(var(--tabbar-h) + var(--space-5) + env(safe-area-inset-bottom, 0px));
   display: grid; grid-template-columns: 1fr; gap: var(--space-4);
 }
 @media (min-width: 720px) {
@@ -194,6 +197,28 @@ button { font-family: inherit; }
 [data-module="math"]    { --module-accent: var(--blue); }
 [data-module="brain"]   { --module-accent: var(--rose); }
 
+/* Focusmodus — geactiveerd via de tabbalk onderaan: toon maar één module,
+   over de volle breedte, voor meer concentratie bij bv. rekenen/braintest. */
+.dashboard[data-focus] { grid-template-columns: 1fr; }
+.dashboard[data-focus] .module { display: none; }
+.dashboard[data-focus="news"] #module-news,
+.dashboard[data-focus="chess"] #module-chess,
+.dashboard[data-focus="podcast"] #module-podcast,
+.dashboard[data-focus="math"] #module-math,
+.dashboard[data-focus="brain"] #module-brain {
+  display: block;
+}
+.dashboard[data-focus] #module-news,
+.dashboard[data-focus] #module-chess,
+.dashboard[data-focus] #module-podcast,
+.dashboard[data-focus] #module-math,
+.dashboard[data-focus] #module-brain {
+  grid-column: 1;
+  grid-row: auto;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
 /* "Betere focus": waar je muis of toetsenbordfocus is, licht op; de rest dimt zachtjes.
    Puur CSS (:has), geen klik-navigatie nodig — werkt naast de individuele in/uitklap-knoppen. */
 @supports selector(:has(a)) {
@@ -229,10 +254,10 @@ button { font-family: inherit; }
 .module__collapse::before {
   content: ''; width: 8px; height: 8px;
   border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: translateY(3px) rotate(45deg);
   transition: transform .25s var(--ease);
 }
-.module__collapse[aria-expanded="true"]::before  { transform: rotate(45deg) translate(-1px,-1px); }
-.module__collapse[aria-expanded="false"]::before { transform: rotate(-45deg) translate(1px,-1px); }
+.module__collapse[aria-expanded="false"]::before { transform: translateY(3px) rotate(-45deg); }
 .module__collapse:hover { background: var(--bg); border-color: var(--module-accent); color: var(--module-accent); transform: scale(1.06); }
 
 .module__body {
@@ -405,13 +430,61 @@ button { font-family: inherit; }
 
 /* ---------- Progress bar ---------- */
 .progress-bar {
-  position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border);
-  padding: var(--space-2) var(--space-4); padding-bottom: calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+  position: sticky; bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: var(--space-2) var(--space-4);
   display: flex; align-items: center; gap: var(--space-3); font-size: .8rem; color: var(--text-soft);
+  z-index: 15;
 }
 .progress-bar__dots { display: flex; gap: var(--space-2); }
 .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: background-color .25s var(--ease), transform .25s var(--ease); }
 .progress-dot.done { background: var(--teal); transform: scale(1.15); }
+
+/* ---------- Bottom tab bar ---------- */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: flex; justify-content: space-around;
+  height: var(--tabbar-h);
+  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-top: 1px solid var(--border);
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+  box-shadow: var(--shadow-lift);
+}
+.tabbar__btn {
+  --tab-accent: var(--text-soft);
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: transparent; border: none; color: var(--text-soft);
+  font-family: inherit; font-size: .68rem; font-weight: 600; letter-spacing: .01em;
+  padding: 4px 2px; border-radius: var(--radius-s); cursor: pointer;
+  transition: color .18s var(--ease), background-color .18s var(--ease), transform .12s var(--ease);
+}
+.tabbar__btn:hover { background: var(--bg); }
+.tabbar__btn:active { transform: scale(.95); }
+.tabbar__btn[data-tab="news"]    { --tab-accent: var(--teal); }
+.tabbar__btn[data-tab="chess"]   { --tab-accent: var(--accent); }
+.tabbar__btn[data-tab="math"]    { --tab-accent: var(--blue); }
+.tabbar__btn[data-tab="podcast"] { --tab-accent: var(--plum); }
+.tabbar__btn[data-tab="brain"]   { --tab-accent: var(--rose); }
+.tabbar__dot {
+  width: 9px; height: 9px; border-radius: 50%; background: var(--tab-accent); opacity: .5;
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease), opacity .2s var(--ease);
+}
+.tabbar__btn[aria-pressed="true"] { color: var(--tab-accent); }
+.tabbar__btn[aria-pressed="true"] .tabbar__dot {
+  opacity: 1; transform: scale(1.35);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tab-accent) 18%, transparent);
+}
+@media (min-width: 720px) {
+  .tabbar {
+    left: 50%; right: auto; transform: translateX(-50%);
+    width: min(640px, calc(100% - var(--space-4) * 2));
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+    border-radius: var(--radius-l) var(--radius-l) 0 0;
+  }
+}
 
 /* ---------- Settings drawer ---------- */
 .drawer { position: fixed; inset: 0; z-index: 50; pointer-events: none; }
@@ -434,7 +507,7 @@ button { font-family: inherit; }
 /* ---------- Toast ---------- */
 @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translate(-50%, 0); } }
 .toast {
-  position: fixed; left: 50%; bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+  position: fixed; left: 50%; bottom: calc(var(--tabbar-h) + 14px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%); background: var(--ink); color: var(--paper);
   padding: 10px 16px; border-radius: var(--radius-pill); font-size: .85rem; z-index: 60;
   box-shadow: var(--shadow-lift);
