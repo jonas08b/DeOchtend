@@ -71,7 +71,7 @@ function onUserMove(orig, dest) {
       sync([result.from, result.to]);
       return;
     }
-    statusEl.textContent = "Juist! Zet " + (solIndex / 2 + 0.5) + " / " + Math.ceil(solution.length / 2);
+    statusEl.textContent = "Juist! Zet " + Math.ceil(solIndex / 2) + " / " + Math.ceil(solution.length / 2);
     sync([result.from, result.to]);
     setTimeout(() => {
       if (myToken !== puzzleToken) return; // ondertussen een andere puzzel geladen
@@ -103,18 +103,17 @@ async function loadPuzzle() {
     const moves = puzzle.game.pgn.split(" ").filter(Boolean);
     moves.forEach((m) => game.move(m, { sloppy: true }));
 
-    // de kant die net gezet heeft is de tegenstander; de speler speelt de andere kleur
-    const orientation = game.turn() === "w" ? "black" : "white";
-    playerColor = orientation;
+    // Na het volledig afspelen van game.pgn (lengte = puzzle.initialPly + 1) is
+    // het al de beurt van de oplosser: solution[0] is dus de zet die DE SPELER
+    // moet vinden, niet een automatische tegenzet. Daarna wisselen speler- en
+    // tegenstanderzetten elkaar af (solution[1], [3], ... zijn de geforceerde
+    // tegenzetten; solution[0], [2], ... zijn voor de speler).
+    playerColor = turnColor();
+    const orientation = playerColor;
     solution = puzzle.puzzle.solution;
     solIndex = 0;
 
-    // eerste zet in solution is de automatische (geforceerde) zet van de tegenstander
-    const firstMove = solution[0];
-    const auto = game.move({ from: firstMove.slice(0, 2), to: firstMove.slice(2, 4), promotion: firstMove[4] || "q" });
-    solIndex = 1;
-
-    const config = { ...boardConfig(auto ? [auto.from, auto.to] : undefined), orientation, coordinates: true, coordinatesOnSquares: true };
+    const config = { ...boardConfig(), orientation, coordinates: true, coordinatesOnSquares: true };
 
     if (!cg) {
       cg = Chessground(boardEl, config);
