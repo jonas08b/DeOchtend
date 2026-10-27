@@ -2,7 +2,8 @@
   "name": "deochtend",
   "version": "1.0.0",
   "private": true,
-  "description": "DeOchtend — rustige mobile-first ochtendroutine (nieuws, podcast, schaakpuzzel, hoofdrekenen, braintest)",
+  "type": "module",
+  "description": "DeOchtend",
   "scripts": {
     "dev": "vercel dev"
   }
