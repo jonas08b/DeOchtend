@@ -150,27 +150,13 @@ main { padding: 16px 16px calc(96px + env(safe-area-inset-bottom, 0px)); max-wid
 h2.page-title { font-size: 21px; margin: 4px 0 14px; letter-spacing: -0.3px; }
 
 /* --- Schaak --- */
+/* Het bord zelf wordt gerenderd door chessground (zie css/chessground.css);
+   hier staat alleen de buitenkant (afmeting, afgeronde hoeken, schaduw). */
 #chessboard {
-  display: grid; grid-template-columns: repeat(8, 1fr);
   width: 100%; aspect-ratio: 1; border-radius: 14px; overflow: hidden;
   box-shadow: var(--shadow); border: 1px solid var(--border);
-  container-type: inline-size;
+  position: relative; display: block;
 }
-.sq {
-  display: flex; align-items: center; justify-content: center; position: relative;
-  min-width: 0; min-height: 0;
-  font-size: 9cqw;
-  cursor: pointer;
-}
-.sq.light { background: #eef0f4; }
-.sq.dark { background: var(--accent-chess); }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .sq.light { background: #c9cdd6; }
-}
-:root[data-theme="dark"] .sq.light { background: #c9cdd6; }
-.sq.selected::after { content: ""; position: absolute; inset: 0; background: rgba(255,210,0,.45); }
-.sq.hint::after { content: ""; position: absolute; width: 28%; height: 28%; border-radius: 50%; background: rgba(0,0,0,.22); }
-.sq.lastmove { box-shadow: inset 0 0 0 999px rgba(255,210,0,.22); }
 .chess-controls { display: flex; gap: 10px; margin-top: 14px; }
 .btn {
   border: none; border-radius: 12px; padding: 11px 16px; font-size: 14px; font-weight: 600;
