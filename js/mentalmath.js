@@ -1,32 +1,46 @@
+// Niveaus bepalen het getallenbereik/tempo; de bewerking (OPERATIONS) bepaalt
+// welke som-types er langskomen. Beide zijn onafhankelijk instelbaar via chips.
 const LEVELS = {
-  makkelijk: { min: 1, max: 10, ops: ["+", "-"], count: 20, time: 90, neg: false },
-  gemiddeld: { min: 2, max: 20, ops: ["+", "-", "*"], count: 25, time: 90, neg: false },
-  moeilijk: { min: 5, max: 50, ops: ["+", "-", "*", "/"], count: 30, time: 90, neg: true }
+  makkelijk: { min: 1, max: 10, count: 20, time: 90, neg: false, mulMin: 1, mulMax: 10 },
+  gemiddeld: { min: 2, max: 30, count: 20, time: 90, neg: false, mulMin: 2, mulMax: 12 },
+  gevorderd: { min: 5, max: 100, count: 25, time: 90, neg: true, mulMin: 3, mulMax: 20 },
+  expert: { min: 10, max: 500, count: 25, time: 90, neg: true, mulMin: 5, mulMax: 25 },
+};
+
+const OPERATIONS = {
+  optellen: ["+"],
+  aftrekken: ["-"],
+  vermenigvuldigen: ["*"],
+  delen: ["/"],
+  gemengd: ["+", "-", "*", "/"],
 };
 
 let settings = LEVELS.makkelijk;
+let ops = OPERATIONS.gemengd;
 let activeLevel = "makkelijk";
+let activeOp = "gemengd";
 let correct = 0, asked = 0, timeLeft = 0, timer = null, current = null;
 
 function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
 function genProblem() {
-  const op = settings.ops[rand(0, settings.ops.length - 1)];
+  const op = ops[rand(0, ops.length - 1)];
   let a = rand(settings.min, settings.max);
   let b = rand(settings.min, settings.max);
   let answer;
-  if (op === "+") answer = a + b;
-  else if (op === "-") {
+  if (op === "+") {
+    answer = a + b;
+  } else if (op === "-") {
     if (!settings.neg && b > a) [a, b] = [b, a];
     answer = a - b;
   } else if (op === "*") {
-    a = rand(settings.min, Math.min(settings.max, 12));
-    b = rand(settings.min, Math.min(settings.max, 12));
+    a = rand(settings.mulMin, settings.mulMax);
+    b = rand(settings.mulMin, settings.mulMax);
     answer = a * b;
   } else {
     // deling: zorg dat het exact uitkomt
-    b = rand(Math.max(2, settings.min), Math.min(settings.max, 12));
-    const q = rand(settings.min, Math.min(settings.max, 12));
+    b = rand(Math.max(2, settings.mulMin), settings.mulMax);
+    const q = rand(settings.mulMin, settings.mulMax);
     a = b * q;
     answer = q;
   }
@@ -81,28 +95,26 @@ function checkAnswer(val) {
   }
 }
 
-function readCustom() {
-  const min = Number(document.getElementById("c-min").value) || 1;
-  const max = Number(document.getElementById("c-max").value) || 20;
-  const count = Number(document.getElementById("c-count").value) || 20;
-  const time = Number(document.getElementById("c-time").value) || 120;
-  const neg = document.getElementById("c-neg").checked;
-  const ops = [...document.querySelectorAll(".c-op:checked")].map((c) => c.value);
-  return { min, max, count, time, neg, ops: ops.length ? ops : ["+"] };
-}
-
 export function initMath() {
+  document.querySelectorAll(".chip[data-op]").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".chip[data-op]").forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      activeOp = chip.dataset.op;
+    });
+  });
+
   document.querySelectorAll(".chip[data-level]").forEach((chip) => {
     chip.addEventListener("click", () => {
       document.querySelectorAll(".chip[data-level]").forEach((c) => c.classList.remove("active"));
       chip.classList.add("active");
       activeLevel = chip.dataset.level;
-      document.getElementById("custom-panel").style.display = activeLevel === "custom" ? "grid" : "none";
     });
   });
 
   document.getElementById("math-start").addEventListener("click", () => {
-    settings = activeLevel === "custom" ? readCustom() : LEVELS[activeLevel];
+    settings = LEVELS[activeLevel];
+    ops = OPERATIONS[activeOp];
     startSession();
   });
 
