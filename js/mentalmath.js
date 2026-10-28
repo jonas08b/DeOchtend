@@ -1,10 +1,10 @@
 // Niveaus bepalen het getallenbereik/tempo; de bewerking (OPERATIONS) bepaalt
 // welke som-types er langskomen. Beide zijn onafhankelijk instelbaar via chips.
 const LEVELS = {
-  makkelijk: { min: 1, max: 10, count: 20, time: 90, neg: false, mulMin: 1, mulMax: 10 },
-  gemiddeld: { min: 2, max: 30, count: 20, time: 90, neg: false, mulMin: 2, mulMax: 12 },
-  gevorderd: { min: 5, max: 100, count: 25, time: 90, neg: true, mulMin: 3, mulMax: 20 },
-  expert: { min: 10, max: 500, count: 25, time: 90, neg: true, mulMin: 5, mulMax: 25 },
+  makkelijk: { min: 1, max: 10, time: 30, neg: false, mulMin: 1, mulMax: 10 },
+  gemiddeld: { min: 2, max: 30, time: 30, neg: false, mulMin: 2, mulMax: 12 },
+  gevorderd: { min: 5, max: 100, time: 30, neg: true, mulMin: 3, mulMax: 20 },
+  expert: { min: 10, max: 500, time: 30, neg: true, mulMin: 5, mulMax: 25 },
 };
 
 const OPERATIONS = {
@@ -117,10 +117,9 @@ function genProblem() {
 }
 
 function nextProblem() {
-  if (asked >= settings.count) return finish();
   current = genProblem();
   document.getElementById("math-problem").textContent = current.text;
-  document.getElementById("math-progress").textContent = `${asked}/${settings.count}`;
+  document.getElementById("math-progress").textContent = `${asked} goed`;
   const input = document.getElementById("math-answer");
   input.value = "";
   input.focus();
