@@ -108,30 +108,21 @@
     <h2 class="page-title">Hoofdrekenen</h2>
 
     <div id="math-setup" class="math-stage active">
+      <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:6px">Bewerking</div>
+      <div class="diff-row">
+        <button class="chip" data-op="optellen">Optellen</button>
+        <button class="chip" data-op="aftrekken">Aftrekken</button>
+        <button class="chip" data-op="vermenigvuldigen">Vermenigvuldigen</button>
+        <button class="chip" data-op="delen">Delen</button>
+        <button class="chip active" data-op="gemengd">Gemengd</button>
+      </div>
+
+      <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:6px">Niveau</div>
       <div class="diff-row">
         <button class="chip active" data-level="makkelijk">Makkelijk</button>
         <button class="chip" data-level="gemiddeld">Gemiddeld</button>
-        <button class="chip" data-level="moeilijk">Moeilijk</button>
-        <button class="chip" data-level="custom">Custom</button>
-      </div>
-
-      <div id="custom-panel" class="custom-form" style="display:none">
-        <div><label>Min getal</label><input type="number" id="c-min" value="2"></div>
-        <div><label>Max getal</label><input type="number" id="c-max" value="20"></div>
-        <div><label>Aantal vragen</label><input type="number" id="c-count" value="20"></div>
-        <div><label>Tijdslimiet (s)</label><input type="number" id="c-time" value="120"></div>
-        <div class="full">
-          <label style="display:flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="c-neg"> Negatieve getallen</label>
-        </div>
-        <div class="full">
-          <label style="margin-bottom:0">Bewerkingen</label>
-        </div>
-        <div class="full" style="display:flex;gap:14px;flex-wrap:wrap">
-          <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" class="c-op" value="+" checked> +</label>
-          <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" class="c-op" value="-" checked> −</label>
-          <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" class="c-op" value="*" checked> ×</label>
-          <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" class="c-op" value="/" checked> ÷</label>
-        </div>
+        <button class="chip" data-level="gevorderd">Gevorderd</button>
+        <button class="chip" data-level="expert">Expert</button>
       </div>
 
       <button class="btn primary" id="math-start" style="margin-top:16px;width:100%">Start sessie</button>
