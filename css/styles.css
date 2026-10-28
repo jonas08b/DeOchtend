@@ -188,6 +188,25 @@ h2.page-title { font-size: 21px; margin: 4px 0 14px; letter-spacing: -0.3px; }
 #math-result { text-align: center; padding: 30px 0; }
 #math-result .score { font-size: 46px; font-weight: 700; }
 
+.math-history-head { margin-top: 24px; margin-bottom: 8px; font-size: 13px; color: var(--text-muted); }
+.math-history { display: flex; flex-direction: column; gap: 8px; }
+.math-history-empty { font-size: 13px; color: var(--text-muted); padding: 10px 0; }
+.math-history-item {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 10px 12px;
+}
+.math-history-item .mh-main { flex: 1; min-width: 0; }
+.math-history-item .mh-score { font-weight: 700; font-size: 15px; }
+.math-history-item .mh-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.math-history-item .mh-date { font-size: 12px; color: var(--text-muted); text-align: right; white-space: nowrap; }
+.math-history-delete {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text-muted);
+  font-size: 14px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.math-history-delete:hover { color: #dc2626; border-color: #dc2626; }
+
 /* --- Braintest --- */
 .brain-menu { display: grid; gap: 12px; }
 .brain-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
